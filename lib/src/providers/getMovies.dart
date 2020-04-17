@@ -10,6 +10,8 @@ class GetMovies {
   String _url = 'api.themoviedb.org';
   String path;
   int _popularesPage = 0;
+  //Provocaremos pequeñas pausas para cargar las imagenes de manera progresiva
+  bool _loading = false; 
   
   Future <List<Movie>> _processRes(Uri url) async{
     
@@ -44,8 +46,17 @@ class GetMovies {
   }
   
   Future <List<Movie>> getRanked({@required path }) async{ 
-  
+    
+    /**
+    * [_Loading] si está cargando: No devolver nada;
+    * si no está cargando entonces seguir la función para hacer una nueva
+    * petición.
+    */
+    if(_loading) return [];
+    
+    _loading = true;
     _popularesPage ++;
+    
     final url = Uri.https(_url,path,{
       'api_key' : _apiKey,
       'page': _popularesPage.toString()
@@ -54,6 +65,8 @@ class GetMovies {
     final res =  await _processRes(url);
     _topRanked.addAll(res);
     rankedSink(_topRanked); //Vital para el StreamBuilder
+    
+    _loading = false;
     return res;
   }
 }
