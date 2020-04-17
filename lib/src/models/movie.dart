@@ -85,6 +85,15 @@ class Movie {
     } else {
       return 'https://image.tmdb.org/t/p/w500$posterPath';
     }
-  } 
+  }
+  
+  getBackgroundImg(){
+    
+    if(posterPath == null){
+      return 'https://optinmonster.com/wp-content/uploads/2018/06/11-brilliant-404-pages-to-turn-lost-visitors-into-loyal-customers-2.png'; 
+    } else {
+      return 'https://image.tmdb.org/t/p/w500$backdropPath';
+    }
+  }  
 }
 

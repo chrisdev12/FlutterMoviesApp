@@ -53,8 +53,9 @@ class MovieHorizontal extends StatelessWidget {
     );
   }
   
-  Widget _movieFooterCard(BuildContext context, Movie movie){  
-    return Container(
+  Widget _movieFooterCard(BuildContext context, Movie movie){
+    
+    final movieCard = Container(
       margin: EdgeInsets.only(right: 15.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -77,6 +78,15 @@ class MovieHorizontal extends StatelessWidget {
         ]
       )
     ); 
+    
+    // Gesture detecto nos permite saber los gestos hechos sobre X widget.
+    return GestureDetector(
+      child: movieCard,
+      onTap: (){
+        //Manejo de rutas y paso de argumentos a dicha página
+        Navigator.pushNamed(context, 'details', arguments:movie);
+      },
+    );
   }
   
   //  Usando el PageView normal:
