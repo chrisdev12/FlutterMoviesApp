@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:movies_app/src/models/actor.dart';
 import 'package:movies_app/src/models/movie.dart';
+import 'package:movies_app/src/providers/getMovies.dart';
 
 class DetailsPage extends StatelessWidget {
   
@@ -19,8 +21,9 @@ class DetailsPage extends StatelessWidget {
           //ListView de los slivers
           SliverList(
             delegate: SliverChildListDelegate([
-              SizedBox(height: 20.0),
+              SizedBox(height: 40.0),
               _posterTitulo(movie),
+              _movieCasting(movie.id)
             ])
           )
         ],
@@ -59,11 +62,14 @@ class DetailsPage extends StatelessWidget {
       padding: EdgeInsets.all(10.0),
       child: Row(
         children: <Widget>[
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20.0),
-            child: Image(
-              image: NetworkImage(movie.getPosterImg()),
-              height: 185.0,
+          Hero(
+            tag: movie.id,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20.0),
+              child: Image(
+                image: NetworkImage(movie.getPosterImg()),
+                height: 195.0,
+              ),
             ),
           ),
           SizedBox(width: 20.0),
@@ -91,6 +97,84 @@ class DetailsPage extends StatelessWidget {
           )
         ],
       ),
+    );
+  }
+
+  Widget _movieCasting(int id) {
+
+    final movieProvider = new GetMovies();
+    return FutureBuilder(
+      future: movieProvider.getCast(movieId: id.toString()),
+      // initialData: InitialData, Evitamos el intial data, pues queremos hacer una animación tipo loading
+      builder: (BuildContext context, AsyncSnapshot<List> snapshot) {    
+        //Esto es análogo al resolve de las promesas en JS: Si tiene data
+        //Dibuja el widget que deseo, de lo contrario dibujame un loading.      
+        if(snapshot.hasData){
+          return _casting(
+            movieCast: snapshot.data,
+            context: context
+          );
+        } else{
+          return Container(
+            height: 400.0,
+            child: Center(
+              child: CircularProgressIndicator()
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  Widget _casting({List<Actor> movieCast, BuildContext context}) {
+
+    return SizedBox(
+      height: 300.0,
+      child: PageView.builder(
+        controller: new PageController(
+          initialPage: 1,
+          viewportFraction: 0.4 
+        ) ,
+        pageSnapping: false,
+        itemCount: movieCast.length,
+        itemBuilder: (context, i) => _actorCard(movieCast[i])
+      ),
+    );
+  }
+
+  _actorCard(actor) {
+
+    return Container(
+      margin: EdgeInsets.only(top: 40.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          ClipRRect(
+            borderRadius: BorderRadius.circular(20.0),
+            child: FadeInImage(
+              image: NetworkImage(actor.getPosterImg()),
+              placeholder: AssetImage('assets/gifs/actor-loading.gif'),
+              fit: BoxFit.cover,
+              //Para manejar una simetría entre el image y el placeholder
+              height: 180.0,
+            ),
+          ),
+          Text(
+            actor.character,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 17.0
+            )
+          ),
+          Text(
+            actor.name,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: Colors.indigo
+            ),
+          )
+        ]
+      )
     );
   }
 }

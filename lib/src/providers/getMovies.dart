@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:movies_app/src/models/actor.dart';
 import 'package:movies_app/src/models/movie.dart';
 import 'package:flutter/material.dart';
 
@@ -19,6 +20,14 @@ class GetMovies {
     final resDecoded = json.decode(res.body);
     final movies = new Movies.fromJson(jsonList: resDecoded['results']);
     return movies.items;
+  }
+
+   Future <List<Actor>> _processActorRes(Uri url) async{
+    
+    final res = await http.get(url);
+    final resDecoded = json.decode(res.body);
+    final cast = new Cast.fromJsonMap(resDecoded['cast']);
+    return cast.items;
   }
   
   List<Movie> _topRanked = new List();
@@ -68,5 +77,24 @@ class GetMovies {
     
     _loading = false;
     return res;
+  }
+
+  Future <List<Actor>> getCast({String movieId}) async {
+
+     final url = Uri.https(_url,'/3/movie/$movieId/credits',{
+      'api_key' : _apiKey
+    });
+    
+    return await _processActorRes(url);
+  }
+
+  Future <List<Movie>> getByName({@required String query }) async{ 
+  
+    final url = Uri.https(_url,'3/search/movie',{
+      'api_key' : _apiKey,
+      'query': query
+    });
+
+    return await _processRes(url);
   }
 }
